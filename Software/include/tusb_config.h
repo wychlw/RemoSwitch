@@ -5,12 +5,12 @@
 extern "C" {
 #endif
 
-#define CFG_TUD_WCH_USBIP_MERGE 1
-#define CFG_TUD_WCH_USBIP_FSDEV 0
+#define CFG_TUD_WCH_USBIP_MERGE 0
+#define CFG_TUD_WCH_USBIP_FSDEV 1
 #define CFG_TUD_WCH_USBIP_USBFS 0
 
 #if CFG_TUD_WCH_USBIP_MERGE || CFG_TUD_WCH_USBIP_FSDEV
-    #define FSDEV_TUD_RHPORT 0
+    #define FSDEV_TUD_RHPORT 1
 #endif
 #if CFG_TUD_WCH_USBIP_MERGE || CFG_TUD_WCH_USBIP_USBFS
     #define USBFS_TUD_RHPORT 1
@@ -31,7 +31,7 @@ extern "C" {
 #endif
 
 #ifndef CFG_TUSB_DEBUG
-    #define CFG_TUSB_DEBUG 3
+    #define CFG_TUSB_DEBUG 0
     #define CFG_TUSB_DEBUG_PRINTF print
 #endif
 

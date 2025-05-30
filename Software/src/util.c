@@ -150,32 +150,34 @@ static bool SetSysClockTo144(void) {
     __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
     RCC->CTLR |= ((uint32_t) RCC_HSEON);
 
-    /* Wait till HSE is ready and if Time out is reached exit */
-    do {
-        HSEStatus = RCC->CTLR & RCC_HSERDY;
-        StartUpCounter++;
-    } while ((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
+//     /* Wait till HSE is ready and if Time out is reached exit */
+//     do {
+//         HSEStatus = RCC->CTLR & RCC_HSERDY;
+//         StartUpCounter++;
+//     } while ((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
 
-    if ((RCC->CTLR & RCC_HSERDY) != RESET) {
-        value = HSE_FrequencyCheck();
-        HSEStatus = (uint32_t) 0x00;
-#if defined(CH32V20x_D8) || defined(CH32V20x_D8W)
-        if (value == 32) {
-            HSEStatus = (uint32_t) 0x01;
-        }
-#else
-        if ((value >= 3) && (value <= 25)) {
-            HSEStatus = (uint32_t) 0x01;
-        }
-#endif
+//     if ((RCC->CTLR & RCC_HSERDY) != RESET) {
+//         value = HSE_FrequencyCheck();
+//         HSEStatus = (uint32_t) 0x00;
+// #if defined(CH32V20x_D8) || defined(CH32V20x_D8W)
+//         if (value == 32) {
+//             HSEStatus = (uint32_t) 0x01;
+//         }
+// #else
+//         if ((value >= 3) && (value <= 25)) {
+//             HSEStatus = (uint32_t) 0x01;
+//         }
+// #endif
 
-    } else {
-        HSEStatus = (uint32_t) 0x00;
-    }
+//     } else {
+//         HSEStatus = (uint32_t) 0x00;
+//     }
 
-    if (value != 8 && value != 24 && value != 16) {
-        HSEStatus = (uint32_t) 0x00;
-    }
+//     if (value != 8 && value != 24 && value != 16) {
+//         HSEStatus = (uint32_t) 0x00;
+//     }
+
+    HSEStatus = 0; // Use HSI as default clock source
 
     if (HSEStatus == (uint32_t) 0x01) {
 

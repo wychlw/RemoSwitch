@@ -7,6 +7,9 @@
 extern "C" {
 #endif
 
+#define BLINK_PORT      GPIOA
+#define BLINK_PIN       GPIO_Pin_15
+
 #define MUX_EN_PORT         GPIOA
 #define MUX_EN_PIN          GPIO_Pin_3
 

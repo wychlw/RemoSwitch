@@ -8,6 +8,8 @@
 extern bool print_acm_inited;
 
 int print(const char *fmt, ...);
+int scan(const char *fmt, ...);
+
 void print_init();
 
 #include "config.h"

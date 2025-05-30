@@ -20,6 +20,57 @@
 #include "write.h"
 
 /*
+ * Switch buf[1]:
+ *      0: MUX_EN = buf[2]
+ *      1: SEL0 = buf[2]
+ *      2: SEL1 = buf[2]
+ *      3: TF_VCC_SEL = buf[2]
+ *      4: UP_CHO = buf[2]
+ *      5: SD_HOST_LED = buf[2]
+ *      6: SD_TS_LED = buf[2]
+ *      7: UART send buf[2]
+*/
+static void sd_mux_raw_pin_handle(uint8_t const *buf, uint16_t len) {
+    if (len < 3) {
+        error("SD_MUX raw pin report too short\r\n");
+        return;
+    }
+    switch (buf[1]) {
+        case 0:
+            GPIO_WriteBit(MUX_EN_PORT, MUX_EN_PIN, buf[2] ? 1 : 0);
+            info("MUX_EN set to %d\r\n", buf[2]);
+            break;
+        case 1:
+            GPIO_WriteBit(SEL0_PORT, SEL0_PIN, buf[2] ? 1 : 0);
+            info("SEL0 set to %d\r\n", buf[2]);
+            break;
+        case 2:
+            GPIO_WriteBit(SEL1_PORT, SEL1_PIN, buf[2] ? 1 : 0);
+            info("SEL1 set to %d\r\n", buf[2]);
+            break;
+        case 3:
+            GPIO_WriteBit(TF_VCC_SEL_PORT, TF_VCC_SEL_PIN, buf[2] ? 1 : 0);
+            info("TF_VCC_SEL set to %d\r\n", buf[2]);
+            break;
+        case 4:
+            GPIO_WriteBit(UP_CHO_PORT, UP_CHO_PIN, buf[2] ? 1 : 0);
+            info("UP_CHO set to %d\r\n", buf[2]);
+            break;
+        case 5:
+            GPIO_WriteBit(SD_HOST_LED_PORT, SD_HOST_LED_PIN, buf[2] ? 1 : 0);
+            info("SD_HOST_LED set to %d\r\n", buf[2]);
+            break;
+        case 6:
+            GPIO_WriteBit(SD_TS_LED_PORT, SD_TS_LED_PIN, buf[2] ? 1 : 0);
+            info("SD_TS_LED set to %d\r\n", buf[2]);
+            break;
+        case 7:
+            print("UART send: %02x\r\n", buf[2]);
+            break;
+    }
+}
+
+/*
  * switch buf[1]:
  *      0: close mux
  *      1: open mux
@@ -75,6 +126,10 @@ static void hid_handle(uint8_t const *buf, uint16_t len) {
     }
     if (buf[0] == 0) {
         sd_mux_hid_handle(buf, len);
+        return;
+    }
+    if (buf[0] == 1) {
+        sd_mux_raw_pin_handle(buf, len);
         return;
     }
     if (buf[0] == 0xFF) {
