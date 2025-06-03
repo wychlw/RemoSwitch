@@ -45,18 +45,33 @@ static void init() {
     info("APB1/PCLK1 Clk:\t\t%d Hz\r\n", clocks.PCLK1_Frequency);
     info("APB2/PCLK2 Clk:\t\t%d Hz\r\n", clocks.PCLK2_Frequency);
     info("ADC Clk:\t\t%d Hz\r\n", clocks.ADCCLK_Frequency);
+
+    info("System init done.\r\n");
+
+    
+    watchdog_init();
 }
 
-
+static bool can_continue = false;
+static void can_continue_set() {
+    can_continue = true;
+}
 int main(void) {
     init();
 
     info("Device init finish.\r\n");
     info("ChipID:\t0x%08x\r\n", DBGMCU_GetCHIPID());
 
+    // wait a while for everything to stabilize
+    queued_task_add(can_continue_set, 50, false);
+    while (!can_continue) {
+        watchdog_task();
+    }
+
     while (1) {
         tud_task();
         cdc_task();
         led_task();
+        watchdog_task();
     }
 }

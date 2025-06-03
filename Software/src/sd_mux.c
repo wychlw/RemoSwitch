@@ -84,7 +84,6 @@ void sd_mux_on(void) {
     GPIO_WriteBit(TF_VCC_EN_PORT, TF_VCC_EN_PIN, 0);
     sd_mux_open = true;
     SET_LED_STAT();
-    info("Exec CMD Fin\r\n");
 }
 
 void sd_mux_off(void) {
@@ -92,7 +91,6 @@ void sd_mux_off(void) {
     GPIO_WriteBit(TF_VCC_EN_PORT, TF_VCC_EN_PIN, 1);
     sd_mux_open = false;
     SET_LED_STAT();
-    info("Exec CMD Fin\r\n");
 }
 
 bool sd_mux_is_on(void) {

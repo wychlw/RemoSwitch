@@ -146,7 +146,7 @@ static uint8_t HSE_FrequencyCheck(void) {
     return HSEFrequencyMhz;
 }
 
-static bool SetSysClockTo144(void) {
+static bool SetSysClock(void) {
     __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
     RCC->CTLR |= ((uint32_t) RCC_HSEON);
 
@@ -195,7 +195,7 @@ static bool SetSysClockTo144(void) {
         if (value == 8) {
             RCC->CFGR0 |= (uint32_t) (RCC_PLLSRC_HSE | RCC_PLLXTPRE_HSE | RCC_PLLMULL18);
         } else if (value == 24) {
-            RCC->CFGR0 |= (uint32_t) (RCC_PLLSRC_HSE | RCC_PLLXTPRE_HSE | RCC_PLLMULL6);
+            RCC->CFGR0 |= (uint32_t) (RCC_PLLSRC_HSE | RCC_PLLXTPRE_HSE_Div2 | RCC_PLLMULL12);
         } else if (value == 16) {
             RCC->CFGR0 |= (uint32_t) (RCC_PLLSRC_HSE | RCC_PLLXTPRE_HSE | RCC_PLLMULL9);
         }
@@ -248,7 +248,7 @@ RCC_ClocksTypeDef clocks;
 // if error, return 0
 uint8_t clock_init(void) {
 
-    bool stat = SetSysClockTo144();
+    bool stat = SetSysClock();
 
     SystemCoreClockUpdate();
 
@@ -283,4 +283,17 @@ void delay_us(uint32_t us) {
 extern uint32_t system_ticks;
 uint32_t board_millis(void) {
     return system_ticks;
+}
+
+void watchdog_task(void) {
+    IWDG_ReloadCounter();
+}
+
+void watchdog_init(void) {
+    IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
+    IWDG_SetPrescaler(IWDG_Prescaler_32);
+    IWDG_SetReload(0x500); // about 1s
+    IWDG_ReloadCounter();
+    IWDG_Enable();
+    info("Watchdog init done. Feeds in 1s.\r\n");
 }
