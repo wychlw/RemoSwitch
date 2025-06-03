@@ -178,6 +178,7 @@ static bool SetSysClockTo144(void) {
 //     }
 
     HSEStatus = 0; // Use HSI as default clock source
+    value = 24;
 
     if (HSEStatus == (uint32_t) 0x01) {
 
@@ -223,7 +224,7 @@ static bool SetSysClockTo144(void) {
         RCC->CFGR0 &= (uint32_t) ((uint32_t) ~(RCC_PLLSRC | RCC_PLLXTPRE |
                                                RCC_PLLMULL));
 
-        RCC->CFGR0 |= (uint32_t) (RCC_PLLSRC_HSI_Div2 | RCC_PLLXTPRE_HSE | RCC_PLLMULL9);
+        RCC->CFGR0 |= (uint32_t) (RCC_PLLSRC_HSI_Div2 | RCC_PLLXTPRE_HSE | RCC_PLLMULL18);
 
         /* Enable PLL */
         RCC->CTLR |= RCC_PLLON;
@@ -247,6 +248,10 @@ RCC_ClocksTypeDef clocks;
 // if error, return 0
 uint8_t clock_init(void) {
 
+    bool stat = SetSysClockTo144();
+
+    SystemCoreClockUpdate();
+
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
     NVIC_EnableIRQ(SysTicK_IRQn);
     SysTick->CTLR = 0;
@@ -254,10 +259,6 @@ uint8_t clock_init(void) {
     SysTick->CNT = 0;
     SysTick->CMP = SystemCoreClock / 1000 - 1;
     SysTick->CTLR = 0xF;
-
-    bool stat = SetSysClockTo144();
-
-    SystemCoreClockUpdate();
 
     RCC_GetClocksFreq(&clocks);
     return stat ? value : 0;

@@ -24,11 +24,13 @@
  *      0: MUX_EN = buf[2]
  *      1: SEL0 = buf[2]
  *      2: SEL1 = buf[2]
- *      3: TF_VCC_SEL = buf[2]
- *      4: UP_CHO = buf[2]
- *      5: SD_HOST_LED = buf[2]
- *      6: SD_TS_LED = buf[2]
- *      7: UART send buf[2]
+ *      3: TF_VCC_EN = buf[2]
+ *      4: DOWN_VCC_EN = buf[2]
+ *      5: UP_VCC_EN = buf[2]
+ *      6: UP_CHO = buf[2]
+ *      7: SD_HOST_LED = buf[2]
+ *      8: SD_TS_LED = buf[2]
+ *      9: UART send buf[2]
 */
 static void sd_mux_raw_pin_handle(uint8_t const *buf, uint16_t len) {
     if (len < 3) {
@@ -36,36 +38,59 @@ static void sd_mux_raw_pin_handle(uint8_t const *buf, uint16_t len) {
         return;
     }
     switch (buf[1]) {
-        case 0:
+        case 0x00:
             GPIO_WriteBit(MUX_EN_PORT, MUX_EN_PIN, buf[2] ? 1 : 0);
             info("MUX_EN set to %d\r\n", buf[2]);
             break;
-        case 1:
+        case 0x01:
             GPIO_WriteBit(SEL0_PORT, SEL0_PIN, buf[2] ? 1 : 0);
             info("SEL0 set to %d\r\n", buf[2]);
             break;
-        case 2:
+        case 0x02:
             GPIO_WriteBit(SEL1_PORT, SEL1_PIN, buf[2] ? 1 : 0);
             info("SEL1 set to %d\r\n", buf[2]);
             break;
-        case 3:
-            GPIO_WriteBit(TF_VCC_SEL_PORT, TF_VCC_SEL_PIN, buf[2] ? 1 : 0);
-            info("TF_VCC_SEL set to %d\r\n", buf[2]);
+        case 0x03:
+            GPIO_WriteBit(TF_VCC_EN_PORT, TF_VCC_EN_PIN, buf[2] ? 1 : 0);
+            info("TF_VCC_EN_PORT set to %d\r\n", buf[2]);
             break;
-        case 4:
+        case 0x04:
+            GPIO_WriteBit(DOWN_VCC_EN_PORT, DOWN_VCC_EN_PIN, buf[2] ? 1 : 0);
+            info("DOWN_VCC_EN_PORT set to %d\r\n", buf[2]);
+            break;
+        case 0x05:
+            GPIO_WriteBit(UP_VCC_EN_PORT, UP_VCC_EN_PIN, buf[2] ? 1 : 0);
+            info("UP_VCC_EN_PORT set to %d\r\n", buf[2]);
+            break;
+        case 0x06:
             GPIO_WriteBit(UP_CHO_PORT, UP_CHO_PIN, buf[2] ? 1 : 0);
             info("UP_CHO set to %d\r\n", buf[2]);
             break;
-        case 5:
+        case 0x07:
             GPIO_WriteBit(SD_HOST_LED_PORT, SD_HOST_LED_PIN, buf[2] ? 1 : 0);
             info("SD_HOST_LED set to %d\r\n", buf[2]);
             break;
-        case 6:
+        case 0x08:
             GPIO_WriteBit(SD_TS_LED_PORT, SD_TS_LED_PIN, buf[2] ? 1 : 0);
             info("SD_TS_LED set to %d\r\n", buf[2]);
             break;
-        case 7:
+        case 0x09:
             print("UART send: %02x\r\n", buf[2]);
+            break;
+        case 0x0a:
+            print("Here reports all GPIOs:\r\n");
+            print("MUX_EN: %d\r\n", GPIO_ReadInputDataBit(MUX_EN_PORT, MUX_EN_PIN));
+            print("SEL0: %d\r\n", GPIO_ReadInputDataBit(SEL0_PORT, SEL0_PIN));
+            print("SEL1: %d\r\n", GPIO_ReadInputDataBit(SEL1_PORT, SEL1_PIN));
+            print("TF_VCC_EN: %d\r\n", GPIO_ReadInputDataBit(TF_VCC_EN_PORT, TF_VCC_EN_PIN));
+            print("DOWN_VCC_EN: %d\r\n", GPIO_ReadInputDataBit(DOWN_VCC_EN_PORT, DOWN_VCC_EN_PIN));
+            print("UP_VCC_EN: %d\r\n", GPIO_ReadInputDataBit(UP_VCC_EN_PORT, UP_VCC_EN_PIN));
+            print("UP_CHO: %d\r\n", GPIO_ReadInputDataBit(UP_CHO_PORT, UP_CHO_PIN));
+            print("SD_HOST_LED: %d\r\n", GPIO_ReadInputDataBit(SD_HOST_LED_PORT, SD_HOST_LED_PIN));
+            print("SD_TS_LED: %d\r\n", GPIO_ReadInputDataBit(SD_TS_LED_PORT, SD_TS_LED_PIN));
+            print("SD_MUX is %s\r\n", sd_mux_is_on() ? "ON" : "OFF");
+            print("SD_MUX status is %s\r\n", sd_mux_status() == SD_MUX_HOST ? "HOST" : "DUT");
+            print("SD_MUX open is %s\r\n", sd_mux_is_on() ? "OPEN" : "CLOSED");
             break;
     }
 }
@@ -84,6 +109,7 @@ static void sd_mux_hid_handle(uint8_t const *buf, uint16_t len) {
         error("SD_MUX control HID report too short\r\n");
         return;
     }
+    info("SD_MUX control command: %02x\r\n", buf[1]);
     static uint8_t report_buffer[] = {0, 4, 0, 0, 0};
     switch (buf[1]) {
         case 0:
@@ -96,11 +122,11 @@ static void sd_mux_hid_handle(uint8_t const *buf, uint16_t len) {
             break;
         case 2:
             sd_mux_set(SD_MUX_HOST);
-            info("MUX set to DUT\r\n");
+            info("MUX set to HOST\r\n");
             break;
         case 3:
             sd_mux_set(SD_MUX_DUT);
-            info("MUX set to HOST\r\n");
+            info("MUX set to DUT\r\n");
             break;
         case 4:
             report_buffer[0] = 0;

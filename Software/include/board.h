@@ -19,9 +19,6 @@ extern "C" {
 #define SEL1_PORT           GPIOA
 #define SEL1_PIN            GPIO_Pin_5
 
-#define TF_VCC_SEL_PORT     GPIOA
-#define TF_VCC_SEL_PIN      GPIO_Pin_6
-
 #define UP_CHO_PORT         GPIOA
 #define UP_CHO_PIN          GPIO_Pin_7
 
@@ -34,6 +31,15 @@ extern "C" {
 #define HOST_UART_DEV       USART1
 #define HOST_UART_TX_PIN    GPIO_Pin_9
 #define HOST_UART_RX_PIN    GPIO_Pin_10
+
+#define TF_VCC_EN_PORT      GPIOA
+#define TF_VCC_EN_PIN       GPIO_Pin_6
+
+#define DOWN_VCC_EN_PORT    GPIOB
+#define DOWN_VCC_EN_PIN     GPIO_Pin_0
+
+#define UP_VCC_EN_PORT      GPIOB
+#define UP_VCC_EN_PIN       GPIO_Pin_1
 
 #define TickMS_TIM          TIM4
 
