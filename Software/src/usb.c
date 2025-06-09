@@ -38,6 +38,11 @@
 static void sd_mux_raw_pin_handle(uint8_t const *buf, uint16_t len) {
     if (len < 3) {
         error("SD_MUX raw pin report too short\r\n");
+        error("Full command: ");
+        for (uint16_t i = 0; i < len; i++) {
+            print("0x%02x ", buf[i]);
+        }
+        print("\r\n");
         return;
     }
     switch (buf[1]) {
@@ -100,6 +105,13 @@ static void sd_mux_raw_pin_handle(uint8_t const *buf, uint16_t len) {
             print("SD_MUX open is %s\r\n", sd_mux_is_on() ? "OPEN" : "CLOSED");
             print("BRD_PWR_EN is %s\r\n", GPIO_ReadInputDataBit(BRD_PWR_EN_PORT, BRD_PWR_EN_PIN) ? "ON" : "OFF");
             break;
+        default:
+            error("Unknown debug control command: %02x\r\n", buf[1]);
+            error("Full command: ");
+            for (uint16_t i = 0; i < len; i++) {
+                print("0x%02x ", buf[i]);
+            }
+            print("\r\n");
     }
 }
 
@@ -164,6 +176,11 @@ static void sd_mux_hid_handle(uint8_t const *buf, uint16_t len) {
             break;
         default:
             error("Unknown sd_mux control command: %02x\r\n", buf[1]);
+            error("Full command: ");
+            for (uint16_t i = 0; i < len; i++) {
+                print("0x%02x ", buf[i]);
+            }
+            print("\r\n");
     }
 }
 
@@ -195,6 +212,11 @@ static void hid_handle(uint8_t const *buf, uint16_t len) {
         return;
     }
     error("Unknown hid command: %02x\r\n", buf[0]);
+    error("Full command: ");
+    for (uint16_t i = 0; i < len; i++) {
+        print("0x%02x ", buf[i]);
+    }
+    print("\r\n");
 }
 
 uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id,

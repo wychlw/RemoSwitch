@@ -88,11 +88,13 @@ pub enum Cmds {
 
 impl Cmds {
     fn send_to(dev: &HidDevice, data: &[u8]) -> Result<(), Box<dyn Error>> {
-        let send_data = [[0u8].to_vec(), data.to_vec()].concat();
-        // windows needs to reserve all bytes
+        #[allow(unused_mut)]
+        let mut send_data = [[0u8].to_vec(), data.to_vec()].concat(); 
+        // windows needs one more byte at the beginning
+        // to match the hidapi's expectations
         #[cfg(target_os = "windows")]
         {
-            send_data.reverse();
+            send_data = [[0u8].to_vec(), send_data].concat();
         }
         // end
         dev.write(&send_data)?;
