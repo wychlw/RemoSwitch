@@ -55,6 +55,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         for (idx, (device, id)) in devices.iter().enumerate() {
             println!("{}\t{:X}\t{}", idx, id, device.path().to_str()?);
         }
+
+        return Ok(());
     }
 
     let api = HidApi::new()?;

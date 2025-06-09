@@ -133,11 +133,12 @@ impl Cmds {
     pub fn get_device_id(dev: &HidDevice) -> Result<u32, Box<dyn Error>> {
         let cmd = Cmds::G0(CmdsGroup0::DeviceId);
         let res = cmd.exec(dev)?;
-        if let Some(data) = res
-            && data.len() >= 4
-        {
-            let id = u32::from_le_bytes([data[0], data[1], data[2], data[3]]);
-            return Ok(id);
+        if let Some(data) = res {
+            // note: see issue #53667 <https://github.com/rust-lang/rust/issues/53667> for more information
+            if data.len() >= 4 {
+                let id = u32::from_le_bytes([data[0], data[1], data[2], data[3]]);
+                return Ok(id);
+            }
         }
         Err("Invalid device ID response".into())
     }

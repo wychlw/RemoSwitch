@@ -15,3 +15,33 @@ panic = "abort"
 strip = true
 opt-level = "z"
 lto = true
+
+[workspace.metadata.cross.target.x86_64-unknown-linux-gnu]
+pre-build = [
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get --assume-yes install libudev-dev:$CROSS_DEB_ARCH"
+]
+
+[workspace.metadata.cross.target.aarch64-unknown-linux-gnu]
+pre-build = [
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get --assume-yes install libudev-dev:$CROSS_DEB_ARCH"
+]
+
+[workspace.metadata.cross.target.aarch64-unknown-linux-musl]
+pre-build = [
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get --assume-yes install libudev-dev:$CROSS_DEB_ARCH musl:$CROSS_DEB_ARCH"
+]
+
+[workspace.metadata.cross.target.riscv64gc-unknown-linux-gnu]
+pre-build = [
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get --assume-yes install libudev-dev:$CROSS_DEB_ARCH"
+]
+
+[workspace.metadata.cross.target.riscv64gc-unknown-linux-musl]
+pre-build = [
+    "dpkg --add-architecture $CROSS_DEB_ARCH",
+    "apt-get update && apt-get --assume-yes install libudev-dev:$CROSS_DEB_ARCH musl:$CROSS_DEB_ARCH"
+]
