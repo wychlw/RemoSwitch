@@ -89,6 +89,12 @@ pub enum Cmds {
 impl Cmds {
     fn send_to(dev: &HidDevice, data: &[u8]) -> Result<(), Box<dyn Error>> {
         let send_data = [[0u8].to_vec(), data.to_vec()].concat();
+        // windows needs to reserve all bytes
+        #[cfg(target_os = "windows")]
+        {
+            send_data.reverse();
+        }
+        // end
         dev.write(&send_data)?;
         Ok(())
     }
