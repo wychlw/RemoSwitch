@@ -30,9 +30,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Move to Program directory
-        run: cd Program 
-
       - name: Install Rust target
         run: rustup target add ${{ matrix.target }}
 
@@ -40,7 +37,10 @@ jobs:
         run: cargo install cross --git https://github.com/cross-rs/cross
 
       - name: Build with cross
-        run: cross build --release --target ${{ matrix.target }}
+        run: |
+          cd Program
+          pwd
+          cross build --release --target ${{ matrix.target }}
 
       - name: Prepare artifact
         run: |
