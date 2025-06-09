@@ -1,9 +1,9 @@
 #ifndef __UTIL_H
 #define __UTIL_H
 
-#include <stdint.h>
-#include <stddef.h>
 #include <ch32v20x.h>
+#include <stddef.h>
+#include <stdint.h>
 
 extern RCC_ClocksTypeDef clocks;
 
@@ -17,5 +17,6 @@ uint32_t board_millis(void);
 
 void watchdog_init(void);
 void watchdog_task(void);
+size_t device_id(void);
 
 #endif

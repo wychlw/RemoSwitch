@@ -17,6 +17,7 @@
 #include "cdc.h"
 #include "queued_task.h"
 #include "sd_mux.h"
+#include "util.h"
 #include "write.h"
 
 /*
@@ -30,7 +31,9 @@
  *      6: UP_CHO = buf[2]
  *      7: SD_HOST_LED = buf[2]
  *      8: SD_TS_LED = buf[2]
- *      9: UART send buf[2]
+ *      9: BRD_PWR_EN = buf[2]
+ *      a: UART send buf[2]
+ *      b: Query all GPIOs
 */
 static void sd_mux_raw_pin_handle(uint8_t const *buf, uint16_t len) {
     if (len < 3) {
@@ -75,9 +78,13 @@ static void sd_mux_raw_pin_handle(uint8_t const *buf, uint16_t len) {
             info("SD_TS_LED set to %d\r\n", buf[2]);
             break;
         case 0x09:
-            print("UART send: %02x\r\n", buf[2]);
+            GPIO_WriteBit(BRD_PWR_EN_PORT, BRD_PWR_EN_PIN, buf[2] ? 1 : 0);
+            info("BRD_PWR_EN set to %d\r\n", buf[2]);
             break;
         case 0x0a:
+            print("UART send: %02x\r\n", buf[2]);
+            break;
+        case 0x0b:
             print("Here reports all GPIOs:\r\n");
             print("MUX_EN: %d\r\n", GPIO_ReadInputDataBit(MUX_EN_PORT, MUX_EN_PIN));
             print("SEL0: %d\r\n", GPIO_ReadInputDataBit(SEL0_PORT, SEL0_PIN));
@@ -91,6 +98,7 @@ static void sd_mux_raw_pin_handle(uint8_t const *buf, uint16_t len) {
             print("SD_MUX is %s\r\n", sd_mux_is_on() ? "ON" : "OFF");
             print("SD_MUX status is %s\r\n", sd_mux_status() == SD_MUX_HOST ? "HOST" : "DUT");
             print("SD_MUX open is %s\r\n", sd_mux_is_on() ? "OPEN" : "CLOSED");
+            print("BRD_PWR_EN is %s\r\n", GPIO_ReadInputDataBit(BRD_PWR_EN_PORT, BRD_PWR_EN_PIN) ? "ON" : "OFF");
             break;
     }
 }
@@ -101,8 +109,11 @@ static void sd_mux_raw_pin_handle(uint8_t const *buf, uint16_t len) {
  *      1: open mux
  *      2: set to host
  *      3: set to dut
- *      4: query status, 
- *          [0, 4, mux is on/off, to_host, to_dut]
+ *      4: query status,
+ *          [mux is on/off, to_host, to_dut, brd power on/off]
+ *      5: device id
+ *      6: set brd pwr on
+ *      7: set brd pwr off
 */
 static void sd_mux_hid_handle(uint8_t const *buf, uint16_t len) {
     if (len < 2) {
@@ -110,31 +121,46 @@ static void sd_mux_hid_handle(uint8_t const *buf, uint16_t len) {
         return;
     }
     info("SD_MUX control command: %02x\r\n", buf[1]);
-    static uint8_t report_buffer[] = {0, 4, 0, 0, 0};
+    static uint8_t report_buffer[16] = {0};
     switch (buf[1]) {
-        case 0:
+        case 0x0:
             sd_mux_off();
             info("MUX is now OFF!\r\n");
             break;
-        case 1:
+        case 0x1:
             sd_mux_on();
             info("MUX is now ON!\r\n");
             break;
-        case 2:
+        case 0x2:
             sd_mux_set(SD_MUX_HOST);
             info("MUX set to HOST\r\n");
             break;
-        case 3:
+        case 0x3:
             sd_mux_set(SD_MUX_DUT);
             info("MUX set to DUT\r\n");
             break;
-        case 4:
-            report_buffer[0] = 0;
-            report_buffer[1] = 4;
-            report_buffer[2] = sd_mux_is_on();
-            report_buffer[3] = sd_mux_status() == SD_MUX_HOST ? 1 : 0;
-            report_buffer[4] = sd_mux_status() == SD_MUX_DUT ? 1 : 0;
-            tud_hid_report(0, report_buffer, sizeof(report_buffer));
+        case 0x4:
+            report_buffer[0] = sd_mux_is_on();
+            report_buffer[1] = sd_mux_status() == SD_MUX_HOST ? 1 : 0;
+            report_buffer[2] = sd_mux_status() == SD_MUX_DUT ? 1 : 0;
+            report_buffer[3] = brd_pwr_is_on() ? 1 : 0;
+            tud_hid_report(0, report_buffer, sizeof(uint8_t[4]));
+            break;
+        case 0x5:;
+            uint32_t id = device_id();
+            report_buffer[0] = (id >> 24) & 0xFF;
+            report_buffer[1] = (id >> 16) & 0xFF;
+            report_buffer[2] = (id >> 8) & 0xFF;
+            report_buffer[3] = (id >> 0) & 0xFF;
+            tud_hid_report(0, report_buffer, sizeof(uint8_t[4]));
+            break;
+        case 0x6:
+            brd_pwr_on();
+            info("Board power is ON\r\n");
+            break;
+        case 0x7:
+            brd_pwr_off();
+            info("Board power is OFF\r\n");
             break;
         default:
             error("Unknown sd_mux control command: %02x\r\n", buf[1]);
@@ -143,6 +169,7 @@ static void sd_mux_hid_handle(uint8_t const *buf, uint16_t len) {
 
 /**
  * buf[0] = 0: Control SD MUX
+ * buf[0] = 1: Raw Pin Control
  * buf[0] = 0xFF: Echo Back
  */
 static void hid_handle(uint8_t const *buf, uint16_t len) {
@@ -246,7 +273,7 @@ void usb_init(void) {
     tusb_rhport_init_t dev_init2 = {.role = TUSB_ROLE_DEVICE,
                                     .speed = TUSB_SPEED_AUTO};
     if (!custom_tusb_init(USBFS_TUD_RHPORT, &dev_init2)) {
-        error("USB FSDEV init failed\r\n");
+        error("USB USBFS init failed\r\n");
     }
 #endif
 }

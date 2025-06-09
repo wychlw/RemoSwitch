@@ -1,10 +1,10 @@
 
-#include <stdbool.h>
 #include "ch32v20x.h"
 #include "debug.h"
+#include <stdbool.h>
 
-#include "write.h"
 #include "util.h"
+#include "write.h"
 
 uint8_t HSEFrequencyMhz;
 #define F1M 1000000
@@ -150,35 +150,32 @@ static bool SetSysClock(void) {
     __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
     RCC->CTLR |= ((uint32_t) RCC_HSEON);
 
-//     /* Wait till HSE is ready and if Time out is reached exit */
-//     do {
-//         HSEStatus = RCC->CTLR & RCC_HSERDY;
-//         StartUpCounter++;
-//     } while ((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
+    /* Wait till HSE is ready and if Time out is reached exit */
+    do {
+        HSEStatus = RCC->CTLR & RCC_HSERDY;
+        StartUpCounter++;
+    } while ((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
 
-//     if ((RCC->CTLR & RCC_HSERDY) != RESET) {
-//         value = HSE_FrequencyCheck();
-//         HSEStatus = (uint32_t) 0x00;
-// #if defined(CH32V20x_D8) || defined(CH32V20x_D8W)
-//         if (value == 32) {
-//             HSEStatus = (uint32_t) 0x01;
-//         }
-// #else
-//         if ((value >= 3) && (value <= 25)) {
-//             HSEStatus = (uint32_t) 0x01;
-//         }
-// #endif
+    if ((RCC->CTLR & RCC_HSERDY) != RESET) {
+        value = HSE_FrequencyCheck();
+        HSEStatus = (uint32_t) 0x00;
 
-//     } else {
-//         HSEStatus = (uint32_t) 0x00;
-//     }
+        if ((value >= 3) && (value <= 25)) {
+            HSEStatus = (uint32_t) 0x01;
+        }
 
-//     if (value != 8 && value != 24 && value != 16) {
-//         HSEStatus = (uint32_t) 0x00;
-//     }
+    } else {
+        HSEStatus = (uint32_t) 0x00;
+    }
 
-    HSEStatus = 0; // Use HSI as default clock source
-    value = 24;
+    if (value != 8 && value != 24 && value != 16) {
+        HSEStatus = (uint32_t) 0x00;
+    }
+
+#if defined(CH32V203C8T6) // This version HSE has error
+    HSEStatus = 0;// Use HSI as default clock source
+    value = 12;
+#endif
 
     if (HSEStatus == (uint32_t) 0x01) {
 
@@ -266,15 +263,15 @@ uint8_t clock_init(void) {
 
 size_t board_get_unique_id(uint8_t id[], size_t max_len) {
     (void) max_len;
-    volatile uint32_t* ch32_uuid = ((volatile uint32_t*) 0x1FFFF7E8UL);
-    uint32_t* serial_32 = (uint32_t*) (uintptr_t) id;
+    volatile uint32_t *ch32_uuid = ((volatile uint32_t *) 0x1FFFF7E8UL);
+    uint32_t *serial_32 = (uint32_t *) (uintptr_t) id;
     serial_32[0] = ch32_uuid[0];
     serial_32[1] = ch32_uuid[1];
     serial_32[2] = ch32_uuid[2];
-  
+
     return 12;
-  }
-  
+}
+
 
 void delay_us(uint32_t us) {
     Delay_Us(us);
@@ -292,8 +289,14 @@ void watchdog_task(void) {
 void watchdog_init(void) {
     IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
     IWDG_SetPrescaler(IWDG_Prescaler_32);
-    IWDG_SetReload(0x500); // about 1s
+    IWDG_SetReload(0x500);// about 1s
     IWDG_ReloadCounter();
     IWDG_Enable();
     info("Watchdog init done. Feeds in 1s.\r\n");
+}
+
+size_t device_id(void) {
+    return (*(__IO u32 *) 0x1FFFF7E8) ^
+           (*(__IO u32 *) 0x1FFFF7EC) ^
+           (*(__IO u32 *) 0x1FFFF7F0);
 }

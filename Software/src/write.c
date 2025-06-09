@@ -88,6 +88,7 @@ int print(const char *fmt, ...) {
 }
 
 void print_init() {
+#if defined(CH32V203C8T6)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
     GPIO_InitTypeDef usart_init = {
         .GPIO_Pin = HOST_UART_RX_PIN | HOST_UART_TX_PIN,
@@ -95,6 +96,16 @@ void print_init() {
         .GPIO_Mode = GPIO_Mode_AF_PP,
     };
     GPIO_Init(GPIOA, &usart_init);
+#endif
+#if defined(CH32V203G6U6)
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+    GPIO_InitTypeDef usart_init = {
+        .GPIO_Pin = HOST_UART_RX_PIN | HOST_UART_TX_PIN,
+        .GPIO_Speed = GPIO_Speed_50MHz,
+        .GPIO_Mode = GPIO_Mode_AF_PP,
+    };
+    GPIO_Init(GPIOA, &usart_init);
+#endif
 
     USART_InitTypeDef usart = {
         .USART_BaudRate = 115200,
