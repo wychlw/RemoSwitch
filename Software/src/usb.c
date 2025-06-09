@@ -190,6 +190,11 @@ static void sd_mux_hid_handle(uint8_t const *buf, uint16_t len) {
  * buf[0] = 0xFF: Echo Back
  */
 static void hid_handle(uint8_t const *buf, uint16_t len) {
+    error("Full command: ");
+    for (uint16_t i = 0; i < len; i++) {
+        print("0x%02x ", buf[i]);
+    }
+    print("\r\n");
     if (len < 1) {
         error("HID report too short\r\n");
         return;
