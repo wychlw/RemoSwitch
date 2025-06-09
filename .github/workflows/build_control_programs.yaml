@@ -1,0 +1,67 @@
+name: Build Control Programs
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build for ${{ matrix.target }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - x86_64-unknown-linux-gnu
+          - x86_64-pc-windows-gnu
+          - riscv64gc-unknown-linux-gnu
+          - riscv64gc-unknown-linux-musl
+          - aarch64-pc-windows-gnu
+          - aarch64-apple-darwin
+          - aarch64-unknown-linux-gnu
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Move to Program directory
+        run: cd Program 
+
+      - name: Install Rust target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Install cross (if needed)
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
+      - name: Build with cross
+        run: cross build --release --target ${{ matrix.target }}
+
+      - name: Prepare artifact
+        run: |
+          mkdir -p artifacts
+          BIN_PATH="target/${{ matrix.target }}/release/tf_mux"
+          if [[ -f "${BIN_PATH}.exe" ]]; then
+            cp "${BIN_PATH}.exe" "artifacts/tf_mux-${{ matrix.target }}.exe"
+          else
+            cp "${BIN_PATH}" "artifacts/tf_mux-${{ matrix.target }}"
+          fi
+
+      - name: Upload artifact to Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tf_mux_ctrl-${{ matrix.target }}
+          path: artifacts/*
+
+      - name: Upload artifact to GitHub Release (if tag)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
