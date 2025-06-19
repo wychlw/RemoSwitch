@@ -1,0 +1,70 @@
+name: PlatformIO CI
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  discussions: write
+
+jobs:
+  build:
+    name: Build for ${{ matrix.target }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - CH32V203G6U6
+          - CH32V203C8T6
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install PlatformIO Core
+        run: |
+          pip install --upgrade platformio
+          pio pkg install -g -p https://github.com/Community-PIO-CH32V/platform-ch32v.git
+
+      - name: Build PlatformIO Project for ${{ matrix.target }}
+        run: |
+          cd Firmware
+          pio run --environment generic${ matrix.target }
+
+      - name: Prepare Artifacts
+        run: |
+          mkdir -p artifacts/
+          mv Firmware/.pio/build/generic${{ matrix.target }}/firmware.bin artifacts/firmware-${{ matrix.target }}.bin
+          mv Firmware/.pio/build/generic${{ matrix.target }}/firmware.elf artifacts/firmware-${{ matrix.target }}.elf
+
+      - name: Upload artifact to Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.target }}
+          path: artifacts/*
+
+      - name: Upload artifact to GitHub Release (if tag)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
