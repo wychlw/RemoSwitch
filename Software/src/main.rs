@@ -47,7 +47,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     if matches!(args.dev_sel, DevSelector::List) {
         if devices.is_empty() {
-            eprintln!("No devices found for tf mux.");
+            eprintln!("No devices found.");
             return Ok(());
         }
         println!("Found {} devices:", devices.len());

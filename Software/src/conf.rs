@@ -131,10 +131,10 @@ impl Confs {
         } else if args.dev_sel.list {
             DevSelector::List
         } else {
-            panic!("No valid device selection provided");
+            panic!("No valid device selection provided. Use --help for usage information.");
         };
         if args.cmd.is_some() && (args.mux.is_some() || args.pwr.is_some() || args.status) {
-            panic!("Cannot use device control options with command execution");
+            panic!("Cannot use device control options with command execution. Use --help for usage information.");
         }
         let mux = args.mux;
         let pwr = args.pwr;

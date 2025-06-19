@@ -96,7 +96,7 @@ impl FromStr for CmdsGroup1 {
             "BrdPwr" => Ok(CmdsGroup1::BrdPwr),
             "UartSend" => Ok(CmdsGroup1::UartSend),
             "AllStatus" => Ok(CmdsGroup1::AllStatus),
-            _ => Err("Invalid command string"),
+            _ => Err("Invalid command string."),
         }
     }
 }

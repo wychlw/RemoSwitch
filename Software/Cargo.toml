@@ -1,5 +1,5 @@
 [package]
-name = "tf_mux"
+name = "remo"
 authors = ["Ling Wang <lingwang@wcysite.com>"]
 version = "0.1.0"
 edition = "2024"
