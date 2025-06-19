@@ -76,17 +76,17 @@ jobs:
       - name: Prepare artifact
         run: |
           mkdir -p artifacts
-          BIN_PATH="Software/target/${{ matrix.target }}/release/tf_mux"
+          BIN_PATH="Software/target/${{ matrix.target }}/release/remo"
           if [[ -f "${BIN_PATH}.exe" ]]; then
-            cp "${BIN_PATH}.exe" "artifacts/tf_mux-${{ matrix.target }}.exe"
+            cp "${BIN_PATH}.exe" "artifacts/remo-${{ matrix.target }}.exe"
           else
-            cp "${BIN_PATH}" "artifacts/tf_mux-${{ matrix.target }}"
+            cp "${BIN_PATH}" "artifacts/remo-${{ matrix.target }}"
           fi
 
       - name: Upload artifact to Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: tf_mux_ctrl-${{ matrix.target }}
+          name: remo_ctrl-${{ matrix.target }}
           path: artifacts/*
 
       - name: Upload artifact to GitHub Release (if tag)
@@ -131,10 +131,10 @@ jobs:
       - name: Prepare artifact
         run: |
           New-Item -ItemType Directory -Force -Path artifacts
-          if (Test-Path "Software/target/${{ matrix.target }}/release/tf_mux.exe") {
-            Copy-Item "Software/target/${{ matrix.target }}/release/tf_mux.exe" -Destination "artifacts/$env:BIN_NAME-${{ matrix.target }}.exe"
-          } elseif (Test-Path "Software/target/${{ matrix.target }}/release/tf_mux") {
-            Copy-Item "Software/target/${{ matrix.target }}/release/tf_mux" -Destination "artifacts/$env:BIN_NAME-${{ matrix.target }}"
+          if (Test-Path "Software/target/${{ matrix.target }}/release/remo.exe") {
+            Copy-Item "Software/target/${{ matrix.target }}/release/remo.exe" -Destination "artifacts/$env:BIN_NAME-${{ matrix.target }}.exe"
+          } elseif (Test-Path "Software/target/${{ matrix.target }}/release/remo") {
+            Copy-Item "Software/target/${{ matrix.target }}/release/remo" -Destination "artifacts/$env:BIN_NAME-${{ matrix.target }}"
           } else {
             Write-Host "Binary not found!"
             exit 1
@@ -143,7 +143,7 @@ jobs:
       - name: Upload artifact to Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: tf_mux_ctrl-${{ matrix.target }}
+          name: remo_ctrl-${{ matrix.target }}
           path: artifacts/*
 
       - name: Upload artifact to GitHub Release (if tag)
@@ -187,17 +187,17 @@ jobs:
       - name: Prepare artifact
         run: |
           mkdir -p artifacts
-          BIN_PATH="Software/target/${{ matrix.target }}/release/tf_mux"
+          BIN_PATH="Software/target/${{ matrix.target }}/release/remo"
           if [[ -f "${BIN_PATH}.exe" ]]; then
-            cp "${BIN_PATH}.exe" "artifacts/tf_mux-${{ matrix.target }}.exe"
+            cp "${BIN_PATH}.exe" "artifacts/remo-${{ matrix.target }}.exe"
           else
-            cp "${BIN_PATH}" "artifacts/tf_mux-${{ matrix.target }}"
+            cp "${BIN_PATH}" "artifacts/remo-${{ matrix.target }}"
           fi
 
       - name: Upload artifact to Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: tf_mux_ctrl-${{ matrix.target }}
+          name: remo_ctrl-${{ matrix.target }}
           path: artifacts/*
 
       - name: Upload artifact to GitHub Release (if tag)
