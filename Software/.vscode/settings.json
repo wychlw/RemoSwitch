@@ -30,6 +30,7 @@
         "ch32_usbfs_reg.h": "c",
         "tusb_common.h": "c",
         "tusb_fifo.h": "c",
-        "ch32v20x_iwdg.h": "c"
+        "ch32v20x_iwdg.h": "c",
+        "brd_ctrl.h": "c"
     },
 }

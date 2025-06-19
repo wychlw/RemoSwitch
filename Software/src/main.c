@@ -11,6 +11,7 @@
 #include "led.h"
 #include "queued_task.h"
 #include "sd_mux.h"
+#include "brd_ctrl.h"
 #include "usb.h"
 #include "util.h"
 #include "write.h"
@@ -25,6 +26,7 @@ static void init() {
     print_init();
     led_init();
     sd_mux_init();
+    brd_ctrl_init();
     usb_init();
 
     __enable_irq();

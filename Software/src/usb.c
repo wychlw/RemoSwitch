@@ -17,6 +17,7 @@
 #include "cdc.h"
 #include "queued_task.h"
 #include "sd_mux.h"
+#include "brd_ctrl.h"
 #include "util.h"
 #include "write.h"
 
@@ -103,7 +104,7 @@ static void sd_mux_raw_pin_handle(uint8_t const *buf, uint16_t len) {
             print("SD_MUX is %s\r\n", sd_mux_is_on() ? "ON" : "OFF");
             print("SD_MUX status is %s\r\n", sd_mux_status() == SD_MUX_HOST ? "HOST" : "DUT");
             print("SD_MUX open is %s\r\n", sd_mux_is_on() ? "OPEN" : "CLOSED");
-            print("BRD_PWR_EN is %s\r\n", GPIO_ReadInputDataBit(BRD_PWR_EN_PORT, BRD_PWR_EN_PIN) ? "ON" : "OFF");
+            print("BRD_PWR_EN is %s\r\n", GPIO_ReadInputDataBit(BRD_PWR_EN_PORT, BRD_PWR_EN_PIN) ? "OFF" : "ON");
             break;
         default:
             error("Unknown debug control command: %02x\r\n", buf[1]);

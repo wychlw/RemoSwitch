@@ -15,7 +15,7 @@ void brd_ctrl_init(void) {
         .GPIO_Speed = GPIO_Speed_10MHz,
     };
     GPIO_Init(BRD_PWR_EN_PORT, &brd_ctrl_init);
-    brd_ctrl_off();
+    brd_pwr_on();
 }
 
 void brd_pwr_on(void) {
