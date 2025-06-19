@@ -143,9 +143,9 @@ This project is inspired by following projects:
 ## Contributors
 
 Thanks to the following contributors for their contributions:
-- Rathhelped with the hardware debugging
+- Raaath Beeeee helped with the hardware debugging
 - [Queally rw](https://github.com/BeRealQueally) helped with the hardware design and soldering
-- [Zi Yao <yaozi@disroot.org>](https://github.com/ziyao233/) helped with the hardware testing
+- [Zi Yao](https://github.com/ziyao233/) <yaozi@disroot.org> helped with the hardware testing
 - And any other contributors who have contributed to this project.
 
 Without their help, this project would not be possible :)
