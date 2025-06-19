@@ -47,7 +47,7 @@ jobs:
       - name: Build PlatformIO Project for ${{ matrix.target }}
         run: |
           cd Firmware
-          pio run --environment generic${ matrix.target }
+          pio run --environment generic${{ matrix.target }}
 
       - name: Prepare Artifacts
         run: |

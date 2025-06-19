@@ -1,4 +1,4 @@
-name: Build Control Programs
+name: Build Control Softwares
 
 on:
   push:
@@ -57,7 +57,7 @@ jobs:
 
       - name: Build with cross
         run: |
-          cd Program
+          cd Software
           if [[ "${{ matrix.target }}" == "riscv64gc-unknown-linux-musl" ]]; then
             export PKG_CONFIG_SYSROOT_DIR=/usr/riscv64-linux-gnu
             export PKG_CONFIG_PATH=/usr/riscv64-linux-gnu/lib/pkgconfig:/usr/riscv64-linux-gnu/share/pkgconfig
@@ -76,7 +76,7 @@ jobs:
       - name: Prepare artifact
         run: |
           mkdir -p artifacts
-          BIN_PATH="Program/target/${{ matrix.target }}/release/tf_mux"
+          BIN_PATH="Software/target/${{ matrix.target }}/release/tf_mux"
           if [[ -f "${BIN_PATH}.exe" ]]; then
             cp "${BIN_PATH}.exe" "artifacts/tf_mux-${{ matrix.target }}.exe"
           else
@@ -125,16 +125,16 @@ jobs:
 
       - name: Build with cross
         run: |
-          cd Program
+          cd Software
           cargo build --release --target ${{ matrix.target }}
 
       - name: Prepare artifact
         run: |
           New-Item -ItemType Directory -Force -Path artifacts
-          if (Test-Path "Program/target/${{ matrix.target }}/release/tf_mux.exe") {
-            Copy-Item "Program/target/${{ matrix.target }}/release/tf_mux.exe" -Destination "artifacts/$env:BIN_NAME-${{ matrix.target }}.exe"
-          } elseif (Test-Path "Program/target/${{ matrix.target }}/release/tf_mux") {
-            Copy-Item "Program/target/${{ matrix.target }}/release/tf_mux" -Destination "artifacts/$env:BIN_NAME-${{ matrix.target }}"
+          if (Test-Path "Software/target/${{ matrix.target }}/release/tf_mux.exe") {
+            Copy-Item "Software/target/${{ matrix.target }}/release/tf_mux.exe" -Destination "artifacts/$env:BIN_NAME-${{ matrix.target }}.exe"
+          } elseif (Test-Path "Software/target/${{ matrix.target }}/release/tf_mux") {
+            Copy-Item "Software/target/${{ matrix.target }}/release/tf_mux" -Destination "artifacts/$env:BIN_NAME-${{ matrix.target }}"
           } else {
             Write-Host "Binary not found!"
             exit 1
@@ -181,13 +181,13 @@ jobs:
 
       - name: Build with cross
         run: |
-          cd Program
+          cd Software
           cargo build --release --target ${{ matrix.target }}
 
       - name: Prepare artifact
         run: |
           mkdir -p artifacts
-          BIN_PATH="Program/target/${{ matrix.target }}/release/tf_mux"
+          BIN_PATH="Software/target/${{ matrix.target }}/release/tf_mux"
           if [[ -f "${BIN_PATH}.exe" ]]; then
             cp "${BIN_PATH}.exe" "artifacts/tf_mux-${{ matrix.target }}.exe"
           else
