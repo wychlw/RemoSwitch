@@ -1,0 +1,40 @@
+From e307b829b00153e021117df4ad68129ea23f37b8 Mon Sep 17 00:00:00 2001
+From: Ling Wang <lingwang@wcysite.com>
+Date: Thu, 19 Jun 2025 17:16:55 +0800
+Subject: [PATCH] Modify tinyusb
+
+Signed-off-by: Ling Wang <lingwang@wcysite.com>
+---
+ src/common/tusb_private.h | 2 +-
+ src/device/usbd.c         | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/common/tusb_private.h b/src/common/tusb_private.h
+index c71775abb..e82b12287 100644
+--- a/src/common/tusb_private.h
++++ b/src/common/tusb_private.h
+@@ -33,7 +33,7 @@
+  extern "C" {
+ #endif
+ 
+-#define TUP_USBIP_CONTROLLER_NUM 2
++#define TUP_USBIP_CONTROLLER_NUM 4
+ extern tusb_role_t _tusb_rhport_role[TUP_USBIP_CONTROLLER_NUM];
+ 
+ //--------------------------------------------------------------------+
+diff --git a/src/device/usbd.c b/src/device/usbd.c
+index 2a6081673..30253b6bd 100644
+--- a/src/device/usbd.c
++++ b/src/device/usbd.c
+@@ -26,7 +26,7 @@
+ 
+ #include "tusb_option.h"
+ 
+-#if CFG_TUD_ENABLED
++#if CFG_TUD_ENABLED && !(defined(CUSTOM_CFG_TUD_ENABLED) && CUSTOM_CFG_TUD_ENABLED)
+ 
+ #include "device/dcd.h"
+ #include "tusb.h"
+-- 
+2.50.0
+
