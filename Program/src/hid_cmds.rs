@@ -1,4 +1,4 @@
-use std::error::Error;
+use std::{error::Error, str::FromStr};
 
 use hidapi::HidDevice;
 
@@ -79,6 +79,47 @@ pub enum CmdsGroup1 {
     AllStatus = 0x0B,
 }
 
+impl FromStr for CmdsGroup1 {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "MuxEn" => Ok(CmdsGroup1::MuxEn),
+            "Sel0" => Ok(CmdsGroup1::Sel0),
+            "Sel1" => Ok(CmdsGroup1::Sel1),
+            "TfVccEn" => Ok(CmdsGroup1::TfVccEn),
+            "DownVccEn" => Ok(CmdsGroup1::DownVccEn),
+            "UpVccEn" => Ok(CmdsGroup1::UpVccEn),
+            "UpCho" => Ok(CmdsGroup1::UpCho),
+            "SdHostLED" => Ok(CmdsGroup1::SdHostLED),
+            "SdTsLed" => Ok(CmdsGroup1::SdTsLed),
+            "BrdPwr" => Ok(CmdsGroup1::BrdPwr),
+            "UartSend" => Ok(CmdsGroup1::UartSend),
+            "AllStatus" => Ok(CmdsGroup1::AllStatus),
+            _ => Err("Invalid command string"),
+        }
+    }
+}
+
+impl ToString for CmdsGroup1 {
+    fn to_string(&self) -> String {
+        match self {
+            CmdsGroup1::MuxEn => "MuxEn".to_string(),
+            CmdsGroup1::Sel0 => "Sel0".to_string(),
+            CmdsGroup1::Sel1 => "Sel1".to_string(),
+            CmdsGroup1::TfVccEn => "TfVccEn".to_string(),
+            CmdsGroup1::DownVccEn => "DownVccEn".to_string(),
+            CmdsGroup1::UpVccEn => "UpVccEn".to_string(),
+            CmdsGroup1::UpCho => "UpCho".to_string(),
+            CmdsGroup1::SdHostLED => "SdHostLED".to_string(),
+            CmdsGroup1::SdTsLed => "SdTsLed".to_string(),
+            CmdsGroup1::BrdPwr => "BrdPwr".to_string(),
+            CmdsGroup1::UartSend => "UartSend".to_string(),
+            CmdsGroup1::AllStatus => "AllStatus".to_string(),
+        }
+    }
+}
+
 #[allow(unused)]
 #[derive(Debug, Clone, Copy)]
 pub enum Cmds {
@@ -89,7 +130,7 @@ pub enum Cmds {
 impl Cmds {
     fn send_to(dev: &HidDevice, data: &[u8]) -> Result<(), Box<dyn Error>> {
         #[allow(unused_mut)]
-        let mut send_data = [[0u8].to_vec(), data.to_vec()].concat(); 
+        let mut send_data = [[0u8].to_vec(), data.to_vec()].concat();
         dev.write(&send_data)?;
         Ok(())
     }
@@ -124,7 +165,7 @@ impl Cmds {
             Cmds::G1(cmd) => {
                 let (cmd_group, param) = cmd;
                 let cmd_byte = *cmd_group as u8;
-                let data = [0, cmd_byte, *param];
+                let data = [1, cmd_byte, *param];
                 Self::send_to(dev, &data)?;
                 Ok(None)
             }

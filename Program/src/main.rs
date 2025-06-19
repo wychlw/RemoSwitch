@@ -62,6 +62,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     let api = HidApi::new()?;
     let dev = args.dev_sel.get_device(&api, &devices)?;
 
+    if let Some(debug_cmd) = args.debug_cmd {
+        Cmds::G1(debug_cmd).exec(&dev)?;
+    }
+
     if let Some(mux) = args.mux {
         match mux {
             MuxOptions::On => Cmds::G0(CmdsGroup0::OpenMux),

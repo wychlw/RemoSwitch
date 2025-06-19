@@ -1,7 +1,9 @@
-use std::error::Error;
+use std::{error::Error, str::FromStr};
 
-use clap::{Args, Parser, ValueEnum};
+use clap::{Args, Parser, Subcommand, ValueEnum};
 use hidapi::{DeviceInfo, HidApi, HidDevice};
+
+use crate::hid_cmds::CmdsGroup1;
 
 pub const VID: u16 = 0x1209;
 pub const PID: u16 = 0x7410;
@@ -29,7 +31,7 @@ impl DevSelector {
                 }
                 let dev = &devices[idx];
                 Ok(dev.0.open_device(api)?)
-            },
+            }
             Self::Device(id) => {
                 let id = u32::from_str_radix(id, 16)?;
                 for (dev, device_id) in devices {
@@ -38,7 +40,7 @@ impl DevSelector {
                     }
                 }
                 Err(format!("Device with ID {id} not found").into())
-            },
+            }
             Self::Path(path) => {
                 for (dev, _) in devices {
                     if dev.path().to_str()? == path {
@@ -46,7 +48,7 @@ impl DevSelector {
                     }
                 }
                 Err(format!("Device with path {path} not found").into())
-            },
+            }
         }
     }
 }
@@ -81,6 +83,12 @@ pub enum PwrOptions {
     Off,
 }
 
+#[derive(Debug, Clone, Subcommand)]
+pub enum Commands {
+    #[command(name = "debug", alias = "d", hide = true)]
+    DebugCmd { cmd: String, param: u8 },
+}
+
 #[derive(Parser, Debug)]
 struct ConfsInternal {
     #[command(flatten)]
@@ -96,6 +104,10 @@ struct ConfsInternal {
     #[arg(long, short, default_value_t = false)]
     /// Show status of the device
     status: bool,
+
+    #[command(subcommand)]
+    /// Commands to execute
+    cmd: Option<Commands>,
 }
 
 #[derive(Debug, Clone)]
@@ -103,6 +115,7 @@ pub struct Confs {
     pub dev_sel: DevSelector,
     pub mux: Option<MuxOptions>,
     pub pwr: Option<PwrOptions>,
+    pub debug_cmd: Option<(CmdsGroup1, u8)>,
     pub status: bool,
 }
 
@@ -120,14 +133,23 @@ impl Confs {
         } else {
             panic!("No valid device selection provided");
         };
+        if args.cmd.is_some() && (args.mux.is_some() || args.pwr.is_some() || args.status) {
+            panic!("Cannot use device control options with command execution");
+        }
         let mux = args.mux;
         let pwr = args.pwr;
+        let debug_cmd = if let Some(Commands::DebugCmd { cmd, param }) = args.cmd {
+            Some((CmdsGroup1::from_str(&cmd).unwrap(), param))
+        } else {
+            None
+        };
         let status = args.status;
         Confs {
             dev_sel,
             mux,
             pwr,
             status,
+            debug_cmd,
         }
     }
 }
