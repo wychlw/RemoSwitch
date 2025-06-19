@@ -90,7 +90,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         if let Some(data) = res {
             let stat: QueryStatus = data.into();
             print!(
-                "Status: \n\tMux: {},\n\tHost: {},\n\tDut: {},\n\tBoard Power: {}",
+                "Status: \n\tMux: {},\n\tHost: {},\n\tDut: {},\n\tBoard Power: {}\n",
                 match stat.mux_status {
                     0 => "Closed",
                     _ => "Open",
