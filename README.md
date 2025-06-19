@@ -19,19 +19,20 @@ If you want to remote/automatically control a development board, such as Raspber
 If your device isn't pre-flashed with the firmware, you can use the following steps to flash it:
 1. Download the firmware from the newest releases. The name should contains `CH32v203G6U6` and end with `.elf` or `.bin`.
 2. Get the [wch-isp](https://github.com/ch32-rs/wchisp) tool, which is used to flash the firmware.
-3. Short the `Boot0` pin on the device to enter the bootloader mode. Look to the bottom of the tf card slot, you can find two holes, connect them.Meanwhile, connect the device to your computer using a USB cable to power it on.
+3. Short the `Boot0` pin on the device to enter the bootloader mode. Look to the bottom of the tf card slot, you can find two holes, connect them. Meanwhile, connect the device to your computer using a USB cable to power it on.
 4. Flash it! `wchisp flash firmware-CH32V203G6U6.bin`
 5. Check the device is working by connecting it to your computer. You shall see a USB device with VID:PID `0x1209:0x7410`, which is the device.
 
 ### Software
 
-The pre-compiled software is available in the releases. You can download it and run it on your computer. Though the program is written in Rust and has the release for Windows, Linux and macOS, only the Linux version is tested. If you fouond any issues, please report it.
+The host control program is written in Rust. There're pre-built binaries for Windows, Linux and MacOS available in the releases page. Note that the program is only tested against Linux. Please report it if you find and issues in the issues page.
 
 ### Usage
 
-*Note: root privilege may need*
+*Note: some commands may require root permission to function correctly.*
 
-First, you need to check whether the device is connected to your computer. You can use `remo -l` command to check the device. If any device is found, you shall see the device information like this:
+First, you need to check whether the device is connected to your computer. 
+You could use command `remo -l` to list available devices. With the device properly connected to the computer, you shall see its information like, this:
 ```log
 Found 1 devices:
 Index   Device ID       Path
@@ -73,9 +74,9 @@ remo -d 69F4A37B -m dut
 
 Besides, you can also use `on` or `off` as the argument to switch on or off the TF card switch. If off, all tf-data will be Hi-Z.
 
-#### Control USB Power
+#### Power the on-board USB Port
 
-Using the option `-p` or `--pwr` to control the USB power. To switch on the USB power, you can use `on` as the argument; to switch off the USB power, you can use `off` as the argument. For example:
+Option `-p` or `--pwr` could be used to power the on-board USB Type-A port. Either `on` or `off` should be supplied as the argument. For example:
 ```bash
 remo -i 0 -p on
 remo -d 69F4A37B -p off
@@ -93,13 +94,13 @@ Here are some notice:
 - Avoid: add any connection to the TF card plug when adding the margin (or you WILL HAVE A BAD TIME thinking how to remove the PCB margin)
 
 These parts are optional, but recommended:
-- A XTAL crystal for the MCU: Help the stability when using with interference
-- A XTAL crystal for the HUB: Some CH334P may not have the internal RC clock.
-- All ESD-prevention parts: you don't want the ESD kill your device through the USB port/TF plug, do you? :)
+- A XTAL crystal for the MCU: improves the stability in bad working conditions
+- A XTAL crystal for the HUB: some CH334P may not have the internal RC clock.
+- All ESD-prevention parts: you don't want the ESD kill your device through the USB port/TF plug :)
 
 These parts are not needed, unless in some special cases:
-- The second CH217 switch: you want up to 5A current? Well... We provide this functionality, but... Coonsider some outside solution? ~(An exposed relay to control the 110-220V power supply IS NOT A GOOD IDEA)~
-- The XTAL cristal for the TF reader: high speed/your reader won't work.
+- The second CH217 switch: you want up to 5A current. Well... We provide this possibility, but... Consider some outside solution? ~(An exposed relay to control the 110-220V power supply IS NOT A GOOD IDEA)~
+- The XTAL cristal for the TF reader: high speed/wont't work without it .
 
 ### Building the Firmware
 
@@ -145,14 +146,14 @@ This project is inspired by following projects:
 Thanks to the following contributors for their contributions:
 - Raaath Beeeee helped with the hardware debugging
 - [Queally rw](https://github.com/BeRealQueally) helped with the hardware design and soldering
-- [Zi Yao](https://github.com/ziyao233/) <yaozi@disroot.org> helped with the hardware testing
+- [Yao Zi](https://github.com/ziyao233/) <ziyao@disroot.org> helped with the hardware testing, and documentation
 - And any other contributors who have contributed to this project.
 
 Without their help, this project would not be possible :)
 
 ## Copyright
 
-Copyright (c) 2025 LingWang <lingwang@wcysite.com>.
+Copyright (c) 2025 Wang Ling <lingwang@wcysite.com>.
 Copyright (c) 2025 Rath.
 All rights reserved.
 
@@ -165,7 +166,7 @@ License:
 
 ### Copyright Notice
 
-We use library `tinyusb`, which is under MIT license. We do modify it a little bit, which is not needed :)
+We use the MIT-licensed library tinyusb. There're some optional changes in downstream.
 
 The firmware framework is using `PlatformIO` and the wch chip support, they are all under Apache-2.0 license.
 
