@@ -86,6 +86,8 @@ remo -d 69F4A37B -p off
 
 ### Make the PCB
 
+**Make sure you use a REAL GL3224, or you might having a lot of trouble in USB3.0 :(** *~I spend a lot of time on this (sad~*
+
 Here are some notice:
 - Please: Electroless Nickel Immersion Gold
 - Please: 0.8mm thickness
@@ -99,7 +101,6 @@ These parts are optional, but recommended:
 - All ESD-prevention parts: you don't want the ESD kill your device through the USB port/TF plug :)
 
 These parts are not needed, unless in some special cases:
-- The second CH217 switch: you want up to 5A current. Well... We provide this possibility, but... Consider some outside solution? ~(An exposed relay to control the 110-220V power supply IS NOT A GOOD IDEA)~
 - The XTAL cristal for the TF reader: high speed/wont't work without it .
 
 ### Building the Firmware
